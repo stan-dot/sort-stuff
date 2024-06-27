@@ -9,8 +9,7 @@ flow
 
 ## features
 
-read links from a dropped file
-read links from mass paste
 
+on the final screen move them into sub-categories
 deploy as a static page
 <https://vitejs.dev/guide/static-deploy>

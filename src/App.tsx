@@ -1,7 +1,8 @@
 import { useState } from "react";
-import SortStuffs from "./components/SortStuffs"; // Ensure the correct path
-import { SortedStructure } from "./types";
-import InputStuffs from "./components/InputStuffs";
+import FinalSortedStuffs from "./components/FinalSortedStuffs";
+import InputComponent from "./components/InputComponent";
+import SortStuffs from "./components/SortStuffs";
+import '@nosferatu500/react-sortable-tree/style.css';
 
 enum AppStates {
   LANDING = "LANDING",
@@ -11,6 +12,10 @@ enum AppStates {
   FINISHED = "FINISHED",
 }
 
+type SortedStructure = {
+  [category: string]: string[];
+};
+
 function App() {
   const [stuffs, setStuffs] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -18,14 +23,6 @@ function App() {
   const [currentState, setCurrentState] = useState<AppStates>(
     AppStates.LANDING
   );
-
-  const handleAddStuffs = (newStuff: string) => {
-    setStuffs([...stuffs, newStuff]);
-  };
-
-  const handleAddCategories = (newCategory: string) => {
-    setCategories([...categories, newCategory]);
-  };
 
   const handleSort = (stuff: string, category: string) => {
     setSortedStructure({
@@ -69,48 +66,37 @@ function App() {
         </div>
       )}
       {currentState === AppStates.ADD_STUFFS && (
-        <InputStuffs
-          stuffs={stuffs}
-          setStuffs={setStuffs}
+        <InputComponent
+          items={stuffs}
+          setItems={setStuffs}
           handleNextState={handleNextState}
+          placeholder="Enter stuff"
+          buttonText="Next"
         />
       )}
       {currentState === AppStates.ADD_CATEGORIES && (
-        <div>
-          <h2>Add Categories</h2>
-          <input
-            type="text"
-            placeholder="Enter category"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && e.currentTarget.value) {
-                handleAddCategories(e.currentTarget.value);
-                e.currentTarget.value = "";
-              }
-            }}
-          />
-          <ul>
-            {categories.map((category, index) => (
-              <li key={index}>{category}</li>
-            ))}
-          </ul>
-          <button onClick={handleNextState}>Next</button>
-        </div>
+        <InputComponent
+          items={categories}
+          setItems={setCategories}
+          handleNextState={handleNextState}
+          placeholder="Enter category"
+          buttonText="Next"
+        />
       )}
       {currentState === AppStates.SORT && (
         <SortStuffs
           stuffs={stuffs}
           categories={categories}
-          sortedStructure={sortedStructure}
+          setCategories={setCategories}
           handleSort={handleSort}
           handleNextState={handleNextState}
         />
       )}
       {currentState === AppStates.FINISHED && (
-        <div>
-          <h2>Sorted Stuffs</h2>
-          <pre>{JSON.stringify(sortedStructure, null, 2)}</pre>
-          <button onClick={handleNextState}>Restart</button>
-        </div>
+        <FinalSortedStuffs
+          sortedStructure={sortedStructure}
+          handleRestart={handleNextState}
+        />
       )}
     </div>
   );
