@@ -1,5 +1,4 @@
-import React from "react";
-import { SortedStructure } from "../types";
+import React, { useEffect } from "react";
 
 interface SortStuffsProps {
   stuffs: string[];
@@ -16,6 +15,29 @@ const SortStuffs: React.FC<SortStuffsProps> = ({
   handleSort,
   handleNextState,
 }) => {
+  const categoryKeys = "asdfghjkl";
+
+  const handleKeyPress = (e: KeyboardEvent, stuffIndex: number) => {
+    const keyIndex = categoryKeys.indexOf(e.key);
+    if (keyIndex !== -1 && keyIndex < categories.length) {
+      handleSort(stuffs[stuffIndex], categories[keyIndex]);
+      if (stuffIndex === stuffs.length - 1) {
+        handleNextState();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      stuffs.forEach((_, index) => handleKeyPress(e, index));
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [stuffs, categories]);
+
   return (
     <div>
       <h2>Sort Stuffs</h2>
@@ -24,7 +46,7 @@ const SortStuffs: React.FC<SortStuffsProps> = ({
           <p>{stuff}</p>
           {categories.map((category, catIndex) => (
             <button key={catIndex} onClick={() => handleSort(stuff, category)}>
-              {category}
+              {category} ({categoryKeys[catIndex]})
             </button>
           ))}
         </div>

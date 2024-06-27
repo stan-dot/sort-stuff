@@ -1,20 +1,23 @@
-import { useState } from 'react';
-import SortStuffs from './components/SortStuffs'; // Ensure the correct path
-import { SortedStructure } from './types';
+import { useState } from "react";
+import SortStuffs from "./components/SortStuffs"; // Ensure the correct path
+import { SortedStructure } from "./types";
+import InputStuffs from "./components/InputStuffs";
 
 enum AppStates {
   LANDING = "LANDING",
   ADD_STUFFS = "ADD_STUFFS",
   ADD_CATEGORIES = "ADD_CATEGORIES",
   SORT = "SORT",
-  FINISHED = "FINISHED"
+  FINISHED = "FINISHED",
 }
 
 function App() {
   const [stuffs, setStuffs] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [sortedStructure, setSortedStructure] = useState<SortedStructure>({});
-  const [currentState, setCurrentState] = useState<AppStates>(AppStates.LANDING);
+  const [currentState, setCurrentState] = useState<AppStates>(
+    AppStates.LANDING
+  );
 
   const handleAddStuffs = (newStuff: string) => {
     setStuffs([...stuffs, newStuff]);
@@ -27,7 +30,9 @@ function App() {
   const handleSort = (stuff: string, category: string) => {
     setSortedStructure({
       ...sortedStructure,
-      [category]: sortedStructure[category] ? [...sortedStructure[category], stuff] : [stuff]
+      [category]: sortedStructure[category]
+        ? [...sortedStructure[category], stuff]
+        : [stuff],
     });
   };
 
@@ -64,31 +69,25 @@ function App() {
         </div>
       )}
       {currentState === AppStates.ADD_STUFFS && (
-        <div>
-          <h2>Add Stuffs</h2>
-          <input type="text" placeholder="Enter stuff" onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.currentTarget.value) {
-              handleAddStuffs(e.currentTarget.value);
-              e.currentTarget.value = '';
-            }
-          }} />
-          <ul>
-            {stuffs.map((stuff, index) => (
-              <li key={index}>{stuff}</li>
-            ))}
-          </ul>
-          <button onClick={handleNextState}>Next</button>
-        </div>
+        <InputStuffs
+          stuffs={stuffs}
+          setStuffs={setStuffs}
+          handleNextState={handleNextState}
+        />
       )}
       {currentState === AppStates.ADD_CATEGORIES && (
         <div>
           <h2>Add Categories</h2>
-          <input type="text" placeholder="Enter category" onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.currentTarget.value) {
-              handleAddCategories(e.currentTarget.value);
-              e.currentTarget.value = '';
-            }
-          }} />
+          <input
+            type="text"
+            placeholder="Enter category"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && e.currentTarget.value) {
+                handleAddCategories(e.currentTarget.value);
+                e.currentTarget.value = "";
+              }
+            }}
+          />
           <ul>
             {categories.map((category, index) => (
               <li key={index}>{category}</li>
