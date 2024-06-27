@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface InputComponentProps {
   items: string[];
@@ -8,8 +8,14 @@ interface InputComponentProps {
   buttonText: string;
 }
 
-const InputComponent: React.FC<InputComponentProps> = ({ items, setItems, handleNextState, placeholder, buttonText }) => {
-  const [input, setInput] = useState<string>('');
+const InputComponent: React.FC<InputComponentProps> = ({
+  items,
+  setItems,
+  handleNextState,
+  placeholder,
+  buttonText,
+}) => {
+  const [input, setInput] = useState<string>("");
 
   const handleAddItem = (newItem: string) => {
     setItems([...items, newItem]);
@@ -21,7 +27,10 @@ const InputComponent: React.FC<InputComponentProps> = ({ items, setItems, handle
       const reader = new FileReader();
       reader.onload = (e) => {
         const text = e.target?.result as string;
-        const newItems = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        const newItems = text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
         setItems([...items, ...newItems]);
       };
       reader.readAsText(file);
@@ -29,23 +38,26 @@ const InputComponent: React.FC<InputComponentProps> = ({ items, setItems, handle
   };
 
   const handlePasteLinks = () => {
-    const newItems = input.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    const newItems = input
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
     setItems([...items, ...newItems]);
-    setInput('');
+    setInput("");
   };
 
   return (
     <div>
       <h2>{buttonText}</h2>
-      <input 
-        type="text" 
-        placeholder={placeholder} 
+      <input
+        type="text"
+        placeholder={placeholder}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && e.currentTarget.value) {
+          if (e.key === "Enter" && e.currentTarget.value) {
             handleAddItem(e.currentTarget.value);
-            e.currentTarget.value = '';
+            e.currentTarget.value = "";
           }
-        }} 
+        }}
       />
       <ul>
         {items.map((item, index) => (
@@ -53,13 +65,15 @@ const InputComponent: React.FC<InputComponentProps> = ({ items, setItems, handle
         ))}
       </ul>
       <input type="file" accept=".txt" onChange={handleFileUpload} />
-      <textarea 
-        placeholder="Paste links here" 
-        value={input} 
+      <textarea
+        placeholder="Paste links here"
+        value={input}
         onChange={(e) => setInput(e.target.value)}
       />
       <button onClick={handlePasteLinks}>Add Links</button>
-      <button onClick={handleNextState}>{buttonText}</button>
+      <button onClick={handleNextState} disabled={items.length === 0}>
+        {buttonText}
+      </button>
     </div>
   );
 };

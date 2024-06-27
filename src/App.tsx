@@ -2,7 +2,7 @@ import { useState } from "react";
 import FinalSortedStuffs from "./components/FinalSortedStuffs";
 import InputComponent from "./components/InputComponent";
 import SortStuffs from "./components/SortStuffs";
-import '@nosferatu500/react-sortable-tree/style.css';
+import { SortedStructure } from "./types";
 
 enum AppStates {
   LANDING = "LANDING",
@@ -11,10 +11,6 @@ enum AppStates {
   SORT = "SORT",
   FINISHED = "FINISHED",
 }
-
-type SortedStructure = {
-  [category: string]: string[];
-};
 
 function App() {
   const [stuffs, setStuffs] = useState<string[]>([]);
@@ -57,7 +53,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="container">
       <p>sort-stuff</p>
       {currentState === AppStates.LANDING && (
         <div>
