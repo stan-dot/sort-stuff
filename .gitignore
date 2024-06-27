@@ -1,3 +1,8 @@
+
+
+node_modules
+.pnpm-store
+
 # Logs
 logs
 *.log
