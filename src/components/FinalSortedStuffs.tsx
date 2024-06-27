@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { downloadJson, downloadMarkdown } from "../utils/downloads";
 import { SortedStructure } from "../types";
+import TreeNode from "./TreeNode";
 
 interface FinalSortedStuffsProps {
   sortedStructure: SortedStructure;
@@ -10,43 +12,86 @@ const FinalSortedStuffs: React.FC<FinalSortedStuffsProps> = ({
   sortedStructure,
   handleRestart,
 }) => {
-  const downloadJson = () => {
-    const dataStr =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(sortedStructure, null, 2));
-    const downloadAnchorNode = document.createElement("a");
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "sorted_stuffs.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  const [treeData, setTreeData] = useState(() =>
+    Object.keys(sortedStructure).map((category) => ({
+      id: category,
+      title: category,
+      items: sortedStructure[category],
+      children: [],
+    }))
+  );
+  const [originalTreeData] = useState(treeData);
+  const [updatedStructure, setUpdatedStructure] = useState(sortedStructure);
+
+  const handleDropNode = (draggedNode: any, targetNode: any) => {
+    const updatedTreeData = treeData
+      .map((node) => {
+        if (node.id === targetNode.id) {
+          return {
+            ...node,
+            children: [...node.children, draggedNode],
+          };
+        } else if (node.id === draggedNode.id) {
+          return null;
+        } else {
+          return node;
+        }
+      })
+      .filter((node) => node !== null);
+
+    setTreeData(updatedTreeData as any[]);
   };
 
-  const downloadMarkdown = () => {
-    let markdownContent = "# My Stuffs Sorted\n";
-    for (const category in sortedStructure) {
-      markdownContent += `## ${category}\n`;
-      sortedStructure[category].forEach((item) => {
-        markdownContent += `- ${item}\n`;
-      });
-      markdownContent += "\n";
-    }
-    const dataStr =
-      "data:text/markdown;charset=utf-8," + encodeURIComponent(markdownContent);
-    const downloadAnchorNode = document.createElement("a");
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "sorted_stuffs.md");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  const handleReset = () => {
+    setTreeData(originalTreeData);
   };
+
+  useEffect(() => {
+    const convertTreeToStructure = (nodes: any[]): SortedStructure => {
+      const structure: SortedStructure = {};
+      nodes.forEach((node) => {
+        structure[node.title] = node.items;
+        if (node.children && node.children.length > 0) {
+          const childStructure = convertTreeToStructure(node.children);
+          Object.keys(childStructure).forEach((key) => {
+            structure[key] = childStructure[key];
+          });
+        }
+      });
+      return structure;
+    };
+
+    setUpdatedStructure(convertTreeToStructure(treeData));
+  }, [treeData]);
 
   return (
     <div>
       <h2>Sorted Stuffs</h2>
-      <pre>{JSON.stringify(sortedStructure, null, 2)}</pre>
-      <button onClick={downloadJson}>Download JSON</button>
-      <button onClick={downloadMarkdown}>Download Markdown</button>
+      <div>
+        <h3> original one</h3>
+        <pre>{JSON.stringify(updatedStructure, null, 2)}</pre>
+      </div>
+      <div
+        style={{
+          height: "400px",
+          overflowY: "auto",
+          border: "1px solid #ccc",
+          padding: "10px",
+        }}
+      >
+        {treeData.map((node, index) => (
+          <TreeNode key={index} node={node} onDropNode={handleDropNode} />
+        ))}
+      </div>
+      <button
+        onClick={() => downloadJson(updatedStructure, "sorted_stuffs.json")}
+      >
+        Download JSON
+      </button>
+      <button onClick={() => downloadMarkdown(treeData, "sorted_stuffs.md")}>
+        Download Markdown
+      </button>
+      <button onClick={handleReset}>Reset Tree</button>
       <button onClick={handleRestart}>Restart</button>
     </div>
   );
